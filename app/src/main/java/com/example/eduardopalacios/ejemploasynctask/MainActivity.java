@@ -1,36 +1,55 @@
 package com.example.eduardopalacios.ejemploasynctask;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity{
+import com.example.eduardopalacios.ejemploasynctask.Interfaces.Comunicar;
+import com.example.eduardopalacios.ejemploasynctask.Threads.Descargar;
 
-     Button button,button2;
+public class MainActivity extends AppCompatActivity implements Comunicar{
+
+     TextView miDisplay;
+     Button button,button2,button3;
      ProgressBar progressBar;
      miAsyntask miAsyntask;
+     Descargar descargar;
+     int contador=0;
+     Context context =this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        miDisplay=findViewById(R.id.display);
         progressBar=findViewById(R.id.progressBar);
 
 
-        miAsyntask=new miAsyntask();
 
-        button=findViewById(R.id.btnDescarga);
-        button2=findViewById(R.id.btnCancelar);
+        //miAsyntask=new miAsyntask();
+
+
+        button=findViewById(R.id.btnContador);
+        button2=findViewById(R.id.btnDescarga);
+        button3=findViewById(R.id.btnCancelar);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 
-                miAsyntask.execute("");
+                contador++;
+                miDisplay.setText(String.valueOf(contador));
 
 
             }
@@ -40,12 +59,40 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
 
-                miAsyntask.cancel(true);
+               // miAsyntask.execute("");
+
+                descargar=new Descargar(context);
+                descargar.start();
+
+
+
+
+
             }
         });
 
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               // miAsyntask.cancel(true);
+                descargar.interrupt();
+
+
+
+
+
+            }
+        });
 
     }
+
+    @Override
+    public void comunicarHiloPrincipal(int i) {
+
+        progressBar.setProgress(i);
+    }
+
+
 
 
 
@@ -72,6 +119,7 @@ public class MainActivity extends AppCompatActivity{
 
                 if (isCancelled())
                 {
+
                     break;
                 }
             }
@@ -90,6 +138,7 @@ public class MainActivity extends AppCompatActivity{
 
             super.onProgressUpdate(values);
             progressBar.setProgress(values[0]);
+           
         }
 
         @Override
